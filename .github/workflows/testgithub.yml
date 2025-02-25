@@ -43,34 +43,31 @@ jobs:
           format: 'sarif'
           output: 'reports/sarif-sbom.json'
 
-      - name: Setup JFrog CLI
-        uses: jfrog/setup-jfrog-cli@v4
-        with:
-          version: latest
-        env:
-          JF_ARTIFACTORY_SERVER: ${{ secrets.JF_ARTIFACTORY_SERVER }}
-          JF_ARTIFACTORY_USER: ${{ secrets.JF_ARTIFACTORY_USERNAME }}
-          JF_ARTIFACTORY_PASSWORD: ${{ secrets.JF_ARTIFACTORY_TOKEN }}
-
-
       - name: Upload Trivy scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: 'reports/sarif-sbom.json'
 
+      # Install JFrog CLI
+      - name: Install JFrog CLI
+        run: |
+          curl -fL https://install-cli.jfrog.io | sh
+          jf --version
+
+      # Configure JFrog CLI with direct command line parameters
+      - name: Configure JFrog CLI
+        run: |
+          jf config add --url "https://sherlockgithubactions.jfrog.io/artifactory" --user "${{ secrets.JF_ARTIFACTORY_USERNAME }}" --password "${{ secrets.JF_ARTIFACTORY_TOKEN }}" --interactive=false
 
       - name: Upload to Artifactory
         run: |
           # Set the timestamp for the filename
           TIMESTAMP=$(date +'%Y%m%d%H%M%S')
 
-          # Set the repository path to the artifactory-build-info repository
-          REPO_PATH="artifactory-build-info/sherlock/sarif-sbom-${TIMESTAMP}.json"
-
           # Upload the JSON file to Artifactory
-          jf rt upload reports/sarif-sbom.json "${REPO_PATH}"
+          jf rt upload reports/sarif-sbom.json "artifactory-build-info/sherlock/sarif-sbom-${TIMESTAMP}.json"
 
-          echo "SBOM uploaded to Artifactory at ${REPO_PATH}"
+          echo "SBOM uploaded to Artifactory at artifactory-build-info/sherlock/sarif-sbom-${TIMESTAMP}.json"
 
       - name: Archive SBOM as workflow artifact
         uses: actions/upload-artifact@v4
