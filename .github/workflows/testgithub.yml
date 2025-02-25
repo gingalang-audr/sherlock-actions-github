@@ -33,6 +33,8 @@ jobs:
         run: |
           docker build --build-arg VCS_REF=$(git rev-parse HEAD) --build-arg VERSION_TAG=0.15.0 -t docker.io/gingalang-audr/sherlock-actions-github:${{ github.sha }} .
 
+      - name: Create reports directory
+        run: mkdir -p reports
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@0.28.0
