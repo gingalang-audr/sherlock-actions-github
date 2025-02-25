@@ -43,35 +43,29 @@ jobs:
           format: 'sarif'
           output: 'reports/sarif-sbom.json'
 
+      - name: Setup JFrog CLI
+        uses: jfrog/setup-jfrog-cli@v4
+        with:
+          version: latest
+        env:
+          JF_ARTIFACTORY_SERVER: ${{ secrets.JF_ARTIFACTORY_SERVER }}
+          JF_ARTIFACTORY_USER: ${{ secrets.JF_ARTIFACTORY_USERNAME }}
+          JF_ARTIFACTORY_PASSWORD: ${{ secrets.JF_ARTIFACTORY_TOKEN }}
+
 
       - name: Upload Trivy scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: 'reports/sarif-sbom.json'
 
-      - name: Debug Artifactory Credentials
-        run: |
-          echo "ARTIFACTORY_SERVER_URL: ${{ secrets.JF_ARTIFACTORY_SERVER }}"
-          echo "ARTIFACTORY_USERNAME: ${{ secrets.JF_ARTIFACTORY_USERNAME }}"
-          echo "ARTIFACTORY_PASSWORD: ${{ secrets.JF_ARTIFACTORY_TOKEN }}"
-
-      - name: Docker Login to JFROG Artifactory
-        run: echo "${{ secrets.JF_ARTIFACTORY_TOKEN }}" | docker login -u "${{ secrets.JF_ARTIFACTORY_USERNAME }}" --password-stdin ${{ secrets.JF_ARTIFACTORY_SERVER }}
-
-      - name: Upload SBOM to Artifactory
-        uses: jfrog/setup-jfrog-cli@v4
-        with:
-          version: latest
-        env:
-          # Configure Artifactory credentials using GitHub secrets
-          JF_ARTIFACTORY_SERVER: ${{ secrets.JF_ARTIFACTORY_SERVER }}
-          JF_ARTIFACTORY_USER: ${{ secrets.JF_ARTIFACTORY_USERNAME }}
-          JF_ARTIFACTORY_PASSWORD: ${{ secrets.JF_ARTIFACTORY_TOKEN }}
 
       - name: Upload to Artifactory
         run: |
-          # Set the Artifactory repository path
-          REPO_PATH="sbom-reports/sherlock/sarif-sbom-$(date +'%Y%m%d%H%M%S').json"
+          # Set the timestamp for the filename
+          TIMESTAMP=$(date +'%Y%m%d%H%M%S')
+
+          # Set the repository path to the artifactory-build-info repository
+          REPO_PATH="artifactory-build-info/sherlock/sarif-sbom-${TIMESTAMP}.json"
 
           # Upload the JSON file to Artifactory
           jf rt upload reports/sarif-sbom.json "${REPO_PATH}"
