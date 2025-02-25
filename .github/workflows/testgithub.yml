@@ -53,7 +53,10 @@ jobs:
         run: |
           echo "ARTIFACTORY_SERVER_URL: ${{ secrets.JF_ARTIFACTORY_SERVER_URL }}"
           echo "ARTIFACTORY_USERNAME: ${{ secrets.JF_ARTIFACTORY_USERNAME }}"
-          echo "ARTIFACTORY_PASSWORD: ${{ secrets.JF_ARTIFACTORY_PASSWORD }}"
+          echo "ARTIFACTORY_PASSWORD: ${{ secrets.JF_ARTIFACTORY_TOKEN }}"
+
+      - name: Docker Login to JFROG Artifactory
+        run: echo ${{ secrets.JF_ARTIFACTORY_TOKEN }} | docker login -u ${{ secrets.JF_ARTIFACTORY_USERNAME }} --password-stdin ${{ secrets.JF_ARTIFACTORY_SERVER_URL }}
 
       - name: Upload SBOM to Artifactory
         uses: jfrog/setup-jfrog-cli@v4
@@ -63,21 +66,21 @@ jobs:
           # Configure Artifactory credentials using GitHub secrets
           JF_ARTIFACTORY_SERVER: ${{ secrets.JF_ARTIFACTORY_SERVER_URL }}
           JF_ARTIFACTORY_USER: ${{ secrets.JF_ARTIFACTORY_USERNAME }}
-          JF_ARTIFACTORY_PASSWORD: ${{ secrets.JF_ARTIFACTORY_PASSWORD }}
+          JF_ARTIFACTORY_PASSWORD: ${{ secrets.JF_ARTIFACTORY_TOKEN }}
 
       - name: Upload to Artifactory
         run: |
           # Set the Artifactory repository path
-          REPO_PATH="sbom-reports/sherlock/trivy-sbom-$(date +'%Y%m%d%H%M%S').json"
+          REPO_PATH="sbom-reports/sherlock/sarif-sbom-$(date +'%Y%m%d%H%M%S').json"
 
           # Upload the JSON file to Artifactory
-          jf rt upload reports/trivy-sbom.json "${REPO_PATH}"
+          jf rt upload reports/sarif-sbom.json "${REPO_PATH}"
 
           echo "SBOM uploaded to Artifactory at ${REPO_PATH}"
 
       - name: Archive SBOM as workflow artifact
         uses: actions/upload-artifact@v4
         with:
-          name: trivy-sbom
-          path: reports/trivy-sbom.json
+          name: sarif-sbom
+          path: reports/sarif-sbom.json
           retention-days: 7
