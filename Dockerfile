@@ -14,7 +14,7 @@ WORKDIR /sherlock
 
 ARG VCS_REF= # CHANGE ME ON UPDATE
 ARG VCS_URL="https://github.com/sherlock-project/sherlock"
-ARG VERSION_TAG= # CHANGE ME ON UPDATE
+ARG VERSION_TAG=0.15.0
 
 ENV SHERLOCK_ENV=docker
 

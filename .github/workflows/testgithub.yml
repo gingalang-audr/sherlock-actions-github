@@ -31,12 +31,13 @@ jobs:
 
       - name: Build an image from Dockerfile
         run: |
-          docker build -t docker.io/my-organization/my-app:${{ github.sha }} .
+          docker build --build-arg VCS_REF=$(git rev-parse HEAD) --build-arg VERSION_TAG=0.15.0 -t docker.io/gingalang-audr/sherlock-actions-github:${{ github.sha }} .
+
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@7b7aa264d83dc58691451798b4d117d53d21edfe
         with:
-          image-ref: 'docker.io/my-organization/my-app:${{ github.sha }}'
+          image-ref: 'docker.io/gingalang-audr/sherlock-actions-github:${{ github.sha }}'
           format: 'template'
           template: '@/contrib/sarif.tpl'
           output: 'trivy-results.sarif'
