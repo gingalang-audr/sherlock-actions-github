@@ -35,11 +35,11 @@ jobs:
 
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@v0.5.0
+        uses: aquasecurity/trivy-action@0.28.0
         with:
           image-ref: 'docker.io/gingalang-audr/sherlock-actions-github:${{ github.sha }}'
-          format: 'cyclonedx'
-          output: 'reports/trivy-sbom.json'
+          format: 'sarif'
+          output: 'reports/sarif-sbom.json'
 
 
       - name: Upload Trivy scan results to GitHub Security tab
@@ -52,10 +52,6 @@ jobs:
           echo "ARTIFACTORY_SERVER_URL: ${{ secrets.JF_ARTIFACTORY_SERVER_URL }}"
           echo "ARTIFACTORY_USERNAME: ${{ secrets.JF_ARTIFACTORY_USERNAME }}"
           echo "ARTIFACTORY_PASSWORD: ${{ secrets.JF_ARTIFACTORY_PASSWORD }}"
-
-      - name: Run Trivy SBOM scanner
-        run: |
-          trivy --format cyclonedx --output reports/trivy-sbom.json docker.io/gingalang-audr/sherlock-actions-github:${{ github.sha }}
 
       - name: Upload SBOM to Artifactory
         uses: jfrog/setup-jfrog-cli@v4
