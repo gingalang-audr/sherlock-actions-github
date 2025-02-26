@@ -18,7 +18,7 @@ EXPECTED_CIPHERS = [
     "AES 256/256",
 ]
 
-CONFIG_FILE = "config_file.txt"  # The configuration file path
+CONFIG_FILE = "./config_file.txt"  # The configuration file path
 
 
 def load_config(filename):
