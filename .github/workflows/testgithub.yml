@@ -58,7 +58,7 @@ jobs:
       - name: Configure JFrog CLI with Access Token
         run: |
           echo "Configuring JFrog CLI with server: ${{ secrets.JF_ARTIFACTORY_SERVER }}"
-          jf config add --url "https://sherlockgithubactions.jfrog.io/artifactory" --user "${{ secrets.JF_ARTIFACTORY_USERNAME }}" --password "${{ secrets.JF_ARTIFACTORY_PASSWORD }}" --interactive=false
+          jf config add --url "https://sherlockgithubactions.jfrog.io" --artifactory-url "https://sherlockgithubactions.jfrog.io/artifactory" --user "${{ secrets.JF_ARTIFACTORY_USERNAME }}" --password "${{ secrets.JF_ARTIFACT_PASSWORD }}" --interactive=false
           jf config show
 
       - name: Test JFrog Connection
