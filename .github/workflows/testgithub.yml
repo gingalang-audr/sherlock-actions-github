@@ -84,7 +84,7 @@ jobs:
           sleep 5  # Pause briefly to allow Artifactory to register the artifact
 
           # Publish the build info using positional arguments.
-          jf build-publish "${BUILD_NAME}" "${BUILD_NUMBER}"
+          jf rt build-publish "${BUILD_NAME}" "${BUILD_NUMBER}"
 
           echo "Artifact uploaded to generic-local and build info published."
 
