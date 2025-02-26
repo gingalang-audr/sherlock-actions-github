@@ -94,7 +94,7 @@ jobs:
 
       - name: Publish Build Info
         run: |
-          jf rt build-publish --build-name="${{ github.repository }}" --build-number="${{ github.run_number }}"
+          jf build-publish --build-name="${{ github.repository }}" --build-number="${{ github.run_number }}"
 
 
       - name: Archive SBOM as workflow artifact
