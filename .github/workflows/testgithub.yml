@@ -86,7 +86,7 @@ jobs:
           sleep 5  # Allow a brief moment for Artifactory to register the artifact
 
           # Publish the build info to Artifactory (this stores the build metadata).
-          jf build-publish --build-name="${BUILD_NAME}" --build-number="${BUILD_NUMBER}"
+          jf rt build-publish --build-name="${BUILD_NAME}" --build-number="${BUILD_NUMBER}"
 
           echo "Artifact uploaded to generic-local and build info published."
 
