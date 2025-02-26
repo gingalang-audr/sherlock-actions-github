@@ -76,7 +76,7 @@ jobs:
           TIMESTAMP=$(date +'%Y%m%d%H%M%S')
 
           # Upload the JSON file to Artifactory
-          jf rt upload --url "https://sherlockgithubactions.jfrog.io/artifactory" --user "${{ secrets.JF_ARTIFACTORY_USERNAME }}" --password "${{ secrets.JF_ARTIFACT_PASSWORD }}" reports/sarif-sbom.json "artifactory-build-info/sarif-sbom-${TIMESTAMP}.json"
+          jf rt upload --url "https://sherlockgithubactions.jfrog.io/artifactory" --user "${{ secrets.JF_ARTIFACTORY_USERNAME }}" --password "${{ secrets.JF_ARTIFACT_PASSWORD }}" --access-token "${{secrets.JF_ARTIFACTORY_TOKEN}}"reports/sarif-sbom.json "artifactory-build-info/sarif-sbom-${TIMESTAMP}.json"
 
           echo "SBOM uploaded to Artifactory at artifactory-build-info/sarif-sbom-${TIMESTAMP}.json"
 
