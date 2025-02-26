@@ -75,12 +75,18 @@ jobs:
           # Set the timestamp for the filename
           TIMESTAMP=$(date +'%Y%m%d%H%M%S')
 
+          # Define build metadata
+          BUILD_NAME="${{ github.repository }}"
+          BUILD_NUMBER="${{ github.run_number }}"
+
           # Upload the JSON file to Artifactory
           # Upload the JSON file to Artifactory
           jf rt upload --url "https://sherlockgithubactions.jfrog.io/artifactory" \
             --user "${{ secrets.JF_ARTIFACTORY_USERNAME }}" \
             --password "${{ secrets.JF_ARTIFACTORY_PASSWORD }}" \
             --access-token "${{ secrets.JF_ARTIFACTORY_TOKEN }}" \
+            --build-name="${BUILD_NAME}" \
+            --build-number="${BUILD_NUMBER}" \
             reports/sarif-sbom.json "artifactory-build-info/sarif-sbom-${TIMESTAMP}.json"
 
           echo "SBOM uploaded to Artifactory at artifactory-build-info/sarif-sbom-${TIMESTAMP}.json"
