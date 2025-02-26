@@ -1,15 +1,9 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
 name: trivy
 
 on:
   push:
     branches: [ "testingartifactory" ]
   pull_request:
-    # The branches below must be a subset of the branches above
     branches: [ "testingartifactory" ]
   schedule:
     - cron: '23 20 * * 0'
@@ -20,9 +14,9 @@ permissions:
 jobs:
   build:
     permissions:
-      contents: read # for actions/checkout to fetch code
-      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
-      actions: read # only required for a private repository by github/codeql-action/upload-sarif to get the Action run status
+      contents: read
+      security-events: write
+      actions: read
     name: Build
     runs-on: ubuntu-latest
     steps:
@@ -58,44 +52,43 @@ jobs:
       - name: Configure JFrog CLI with Access Token
         run: |
           echo "Configuring JFrog CLI with server: ${{ secrets.JF_ARTIFACTORY_SERVER }}"
-          jf config add --url "https://sherlockgithubactions.jfrog.io" --artifactory-url "https://sherlockgithubactions.jfrog.io/artifactory" --user "${{ secrets.JF_ARTIFACTORY_USERNAME }}" --password "${{ secrets.JF_ARTIFACT_PASSWORD }}" --interactive=false
+          jf config add --url "https://sherlockgithubactions.jfrog.io" \
+            --artifactory-url "https://sherlockgithubactions.jfrog.io/artifactory" \
+            --user "${{ secrets.JF_ARTIFACTORY_USERNAME }}" \
+            --password "${{ secrets.JF_ARTIFACT_PASSWORD }}" \
+            --interactive=false
           jf config show
 
       - name: Test JFrog Connection
         run: jf rt ping
 
-      # Debug step for the upload path (doesn't expose token)
-      - name: Debug Upload Path
-        run: |
-          TIMESTAMP=$(date +'%Y%m%d%H%M%S')
-          echo "Will upload to: artifactory-build-info/sherlock/sarif-sbom-${TIMESTAMP}.json"
-
       - name: Set Build Started Timestamp
         run: echo "BUILD_STARTED=$(date -u +"%Y-%m-%dT%H:%M:%S.000Z")" >> $GITHUB_ENV
-
 
       - name: Upload and Publish Build Info
         run: |
           TIMESTAMP=$(date +'%Y%m%d%H%M%S')
           BUILD_STARTED=$(date -u +"%Y-%m-%dT%H:%M:%S.000Z")
           echo "Using BUILD_STARTED: ${BUILD_STARTED}"
+
           BUILD_NAME="${{ github.repository }}"
           BUILD_NUMBER="${{ github.run_number }}"
-          # Inline assignment to ensure BUILD_STARTED is in the command's environment
+
+          # Upload the SBOM to the *generic* repository (not the build-info repo)
           BUILD_STARTED=${BUILD_STARTED} jf rt upload --url "https://sherlockgithubactions.jfrog.io/artifactory" \
             --user "${{ secrets.JF_ARTIFACTORY_USERNAME }}" \
             --password "${{ secrets.JF_ARTIFACTORY_PASSWORD }}" \
             --access-token "${{ secrets.JF_ARTIFACTORY_TOKEN }}" \
             --build-name="${BUILD_NAME}" \
             --build-number="${BUILD_NUMBER}" \
-            reports/sarif-sbom.json "artifactory-build-info/sarif-sbom-${TIMESTAMP}.json"
+            reports/sarif-sbom.json "sbom-generic-local/sarif-sbom-${TIMESTAMP}.json"
 
           sleep 5  # Give Artifactory a moment to register the upload
 
+          # Now publish the build info, which will go to the 'artifactory-build-info' repo automatically
           jf build-publish --build-name="${BUILD_NAME}" --build-number="${BUILD_NUMBER}"
 
-          echo "Artifact uploaded and build info published."
-
+          echo "Artifact uploaded to sbom-generic-local and build info published to artifactory-build-info."
 
       - name: Archive SBOM as workflow artifact
         uses: actions/upload-artifact@v4
