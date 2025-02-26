@@ -57,7 +57,9 @@ jobs:
       # Configure JFrog CLI with direct command line parameters
       - name: Configure JFrog CLI with Access Token
         run: |
+          echo "Configuring JFrog CLI with server: ${{ secrets.JF_ARTIFACTORY_SERVER }}"
           jf config add --url "${{ secrets.JF_ARTIFACTORY_SERVER }}" --user "${{ secrets.JF_ARTIFACTORY_USERNAME }}" --password "${{ secrets.JF_ARTIFACT_PASSWORD }}" --interactive=false
+          jf config show
 
       - name: Test JFrog Connection
         run: jf rt ping
