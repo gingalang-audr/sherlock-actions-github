@@ -57,7 +57,7 @@ jobs:
       # Configure JFrog CLI with direct command line parameters
       - name: Configure JFrog CLI with Access Token
         run: |
-          jf config add --url "https://sherlockgithubactions.jfrog.io/artifactory" --access-token "${{ secrets.JF_ARTIFACTORY_TOKEN }}" --interactive=false
+          jf config add --url "https://sherlockgithubactions.jfrog.io/artifactory" --user "${{ secrets.JF_ARTIFACTORY_USERNAME }}" --password "${{ secrets.JF_ARTIFACTORY_PASSWORD }}" --interactive=false
 
       # Debug step for the upload path (doesn't expose token)
       - name: Debug Upload Path
