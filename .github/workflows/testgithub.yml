@@ -74,14 +74,14 @@ jobs:
         run: echo "BUILD_STARTED=$(date -u +"%Y-%m-%dT%H:%M:%S.000Z")" >> $GITHUB_ENV
 
 
-      - name: Upload to Artifactory
+      - name: Upload and Publish Build Info
         run: |
           TIMESTAMP=$(date +'%Y%m%d%H%M%S')
           BUILD_STARTED=$(date -u +"%Y-%m-%dT%H:%M:%S.000Z")
           echo "Using BUILD_STARTED: ${BUILD_STARTED}"
           BUILD_NAME="${{ github.repository }}"
           BUILD_NUMBER="${{ github.run_number }}"
-          # Set BUILD_STARTED inline so that it's in the same environment as jf
+          # Inline assignment to ensure BUILD_STARTED is in the command's environment
           BUILD_STARTED=${BUILD_STARTED} jf rt upload --url "https://sherlockgithubactions.jfrog.io/artifactory" \
             --user "${{ secrets.JF_ARTIFACTORY_USERNAME }}" \
             --password "${{ secrets.JF_ARTIFACTORY_PASSWORD }}" \
@@ -90,14 +90,11 @@ jobs:
             --build-number="${BUILD_NUMBER}" \
             reports/sarif-sbom.json "artifactory-build-info/sarif-sbom-${TIMESTAMP}.json"
 
-          echo "SBOM uploaded to Artifactory at artifactory-build-info/sarif-sbom-${TIMESTAMP}.json"
+          sleep 5  # Give Artifactory a moment to register the upload
 
+          jf build-publish --build-name="${BUILD_NAME}" --build-number="${BUILD_NUMBER}"
 
-
-
-      - name: Publish Build Info
-        run: |
-          jf build-publish --build-name="${{ github.repository }}" --build-number="${{ github.run_number }}"
+          echo "Artifact uploaded and build info published."
 
 
       - name: Archive SBOM as workflow artifact
