@@ -76,7 +76,7 @@ jobs:
           BUILD_NUMBER="${{ github.run_number }}"
           BUILD_STARTED=$(date -u +"%Y-%m-%dT%H:%M:%S.000Z")
 
-          jf rt build-start --build-name="${BUILD_NAME}" --build-number="${BUILD_NUMBER}" --build-started="${BUILD_STARTED}"
+          jf build-start --build-name="${BUILD_NAME}" --build-number="${BUILD_NUMBER}" --build-started="${BUILD_STARTED}"
 
 
       - name: Upload to Artifactory
