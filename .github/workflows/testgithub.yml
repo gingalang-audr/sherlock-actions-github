@@ -73,6 +73,7 @@ jobs:
       - name: Upload to Artifactory
         run: |
           TIMESTAMP=$(date +'%Y%m%d%H%M%S')
+          export BUILD_STARTED=$(date -u +"%Y-%m-%dT%H:%M:%S.000Z")
           jf rt upload --url "https://sherlockgithubactions.jfrog.io/artifactory" \
             --user "${{ secrets.JF_ARTIFACTORY_USERNAME }}" \
             --password "${{ secrets.JF_ARTIFACTORY_PASSWORD }}" \
