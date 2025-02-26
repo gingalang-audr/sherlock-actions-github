@@ -76,9 +76,9 @@ jobs:
           TIMESTAMP=$(date +'%Y%m%d%H%M%S')
 
           # Upload the JSON file to Artifactory
-          jf rt upload reports/sarif-sbom.json "artifactory-build-info/sherlock/sarif-sbom-${TIMESTAMP}.json"
+          jf rt upload reports/sarif-sbom.json "artifactory-build-info/sarif-sbom-${TIMESTAMP}.json"
 
-          echo "SBOM uploaded to Artifactory at artifactory-build-info/sherlock/sarif-sbom-${TIMESTAMP}.json"
+          echo "SBOM uploaded to Artifactory at artifactory-build-info/sarif-sbom-${TIMESTAMP}.json"
 
       - name: Archive SBOM as workflow artifact
         uses: actions/upload-artifact@v4
