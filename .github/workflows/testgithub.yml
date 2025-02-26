@@ -52,10 +52,13 @@ jobs:
       - name: Configure JFrog CLI with Access Token
         run: |
           echo "Configuring JFrog CLI with server: ${{ secrets.JF_ARTIFACTORY_SERVER }}"
-          jf config add --url "https://sherlockgithubactions.jfrog.io" \
+          # Configure a named server ("my-server") with your access token.
+          jf config add my-server --url "https://sherlockgithubactions.jfrog.io" \
             --artifactory-url "https://sherlockgithubactions.jfrog.io/artifactory" \
             --access-token "${{ secrets.JF_ARTIFACTORY_TOKEN }}" \
             --interactive=false
+          # Set this server as the default for subsequent commands.
+          jf config use my-server
           jf config show
 
 
@@ -74,17 +77,14 @@ jobs:
           BUILD_NAME="${{ github.repository }}"
           BUILD_NUMBER="${{ github.run_number }}"
 
-          # Upload the artifact without build info flags to avoid matrix parameters.
+          # Upload the artifact to your generic repository without explicit credential flags.
           jf rt upload --url "https://sherlockgithubactions.jfrog.io/artifactory" \
-            --user "${{ secrets.JF_ARTIFACTORY_USERNAME }}" \
-            --access-token "${{ secrets.JF_ARTIFACTORY_TOKEN }}" \
-            --password "${{ secrets.JF_ARTIFACTORY_PASSWORD }}" \
             reports/sarif-sbom.json "generic-local/sarif-sbom-${TIMESTAMP}.json"
 
-          sleep 5  # Pause briefly to allow Artifactory to register the artifact
+          sleep 5  # Allow a moment for Artifactory to register the artifact
 
-          # Publish the build info using positional arguments.
-          jf rt build-publish "${BUILD_NAME}" "${BUILD_NUMBER}"
+          # Publish the build info using positional arguments and referencing the configured server.
+          jf build-publish "${BUILD_NAME}" "${BUILD_NUMBER}" --server-id=my-server
 
           echo "Artifact uploaded to generic-local and build info published."
 
