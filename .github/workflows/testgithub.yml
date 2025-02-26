@@ -74,22 +74,22 @@ jobs:
           BUILD_NAME="${{ github.repository }}"
           BUILD_NUMBER="${{ github.run_number }}"
 
-          # Upload the artifact without build info flags to avoid matrix parameters
+          # Upload the artifact with build info flags (matrix parameters will be appended).
           jf rt upload --url "https://sherlockgithubactions.jfrog.io/artifactory" \
             --user "${{ secrets.JF_ARTIFACTORY_USERNAME }}" \
             --password "${{ secrets.JF_ARTIFACTORY_PASSWORD }}" \
             --access-token "${{ secrets.JF_ARTIFACTORY_TOKEN }}" \
-            reports/sarif-sbom.json "generic-local/sarif-sbom-${TIMESTAMP}.json"
+            reports/sarif-sbom.json "generic-local/sarif-sbom-${TIMESTAMP}.json" \
+            --build-name="${BUILD_NAME}" \
+            --build-number="${BUILD_NUMBER}"
 
-          # Associate the uploaded artifact with the build
-          jf build-add-artifact --build-name="${BUILD_NAME}" --build-number="${BUILD_NUMBER}" "generic-local/sarif-sbom-${TIMESTAMP}.json"
+          sleep 5  # Allow a brief moment for Artifactory to register the artifact
 
-          sleep 5  # Pause briefly to allow Artifactory to register the artifact
-
-          # Publish the build info (which will be stored in your build-info repository)
+          # Publish the build info to Artifactory (this stores the build metadata).
           jf build-publish --build-name="${BUILD_NAME}" --build-number="${BUILD_NUMBER}"
 
           echo "Artifact uploaded to generic-local and build info published."
+
 
 
       - name: Archive SBOM as workflow artifact
